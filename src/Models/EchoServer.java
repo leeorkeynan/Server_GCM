@@ -294,6 +294,13 @@ public class EchoServer extends AbstractServer
     String msg = "A Client has connected";
     System.out.println(msg);
     m_client = client;
+    try
+    {
+      client.sendToClient("CONNECTED");
+    }
+    catch(Exception e)
+    {    }
+    return;
     //this.sendToAllClients(msg);
   }
 
