@@ -26,7 +26,7 @@ import java.io.IOException;
 public class EchoServer extends AbstractServer
 {
   //Class variables *************************************************
-  
+
   /**
    * The default port to listen on.
    */
@@ -40,21 +40,21 @@ public class EchoServer extends AbstractServer
    */
   ChatIF serverUI;
 
-  
+
   //Constructors ****************************************************
-  
+
   /**
    * Constructs an instance of the echo server.
    *
    * @param port The port number to connect on.
    */
-  public EchoServer(int port) 
+  public EchoServer(int port)
   {
     super(port);
     DB = new DBHandler();
   }
 
-   /**
+  /**
    * Constructs an instance of the echo server.
    *
    * @param port The port number to connect on.
@@ -67,9 +67,9 @@ public class EchoServer extends AbstractServer
     DB = new DBHandler();
   }
 
-  
+
   //Instance methods ************************************************
-  
+
   /**
    * This method handles any messages received from the client.
    *
@@ -77,7 +77,7 @@ public class EchoServer extends AbstractServer
    * @param client The connection from which the message originated.
    */
   public void handleMessageFromClient
-    (Object msg, ConnectionToClient client)
+  (Object msg, ConnectionToClient client)
   {
     if (msg.toString().startsWith("#login "))
     {
@@ -94,7 +94,7 @@ public class EchoServer extends AbstractServer
       }
       client.setInfo("loginID", msg.toString().substring(7));
     }
-    else 
+    else
     {
       if (client.getInfo("loginID") == null)
       {
@@ -106,48 +106,48 @@ public class EchoServer extends AbstractServer
         catch (IOException e) {}
         return;
       }
-      
 
-    	      //case 1
+
+      //case 1
       if (msg.toString().split("_")[0].equals("GetPurchaseByID"))
       {
         try
-    	  {
-    	    String username = msg.toString().split("_")[1];
-    	    client.sendToClient(username + "'s Purchases number: "+ DB.GetNumOfPurchases(username));
-    	  }
-    	  catch (IOException e) {}
-          return;
+        {
+          String username = msg.toString().split("_")[1];
+          client.sendToClient(username + "'s Purchases number: "+ DB.GetNumOfPurchases(username));
+        }
+        catch (IOException e) {}
+        return;
       }
-    		  
-     			//case 2
 
-        if (msg.toString().split("_")[0].equals("IncreasePurchase"))
-	  {
-		  try
-		  {
-            String username = msg.toString().split("_")[1];
-            DB.IncreaseNumOfPurchases(username,1);
-		  }
-		  catch (Exception e)
-          {
-            System.out.println(e.getMessage());
-          }
-	      return;
-	  }	  
+      //case 2
 
-			//case 3
+      if (msg.toString().split("_")[0].equals("IncreasePurchase"))
+      {
+        try
+        {
+          String username = msg.toString().split("_")[1];
+          DB.IncreaseNumOfPurchases(username,1);
+        }
+        catch (Exception e)
+        {
+          System.out.println(e.getMessage());
+        }
+        return;
+      }
+
+      //case 3
 
       if (msg.toString().split("_")[0].equals("GetDetails"))
       {
-      try
-      {
-        String username = msg.toString().split("_")[1];
-        IClientDetails details = DB.GetClientDetails(username);
-        client.sendToClient(username +"'s Details:\n" + details.ToString());
-      }
-      catch (IOException e) {}
-      return;
+        try
+        {
+          String username = msg.toString().split("_")[1];
+          IClientDetails details = DB.GetClientDetails(username);
+          client.sendToClient(username +"'s Details:\n" + details.ToString());
+        }
+        catch (IOException e) {}
+        return;
       }
 
       //case 4
@@ -155,14 +155,18 @@ public class EchoServer extends AbstractServer
       {
         try
         {
-          client.sendToClient(DB.IsUsernameExists(msg.toString().split("_")[1]));
+          String username = msg.toString().split("_")[1];
+          String password = msg.toString().split("_")[2];
+          client.sendToClient(DB.IsUsernameExists(username,password));
         }
         catch (IOException e) {}
         return;
       }
+
       System.out.println("Message received: " + msg + " from \"" +
               client.getInfo("loginID") + "\" " + client);
       this.sendToAllClients(client.getInfo("loginID") + "> " + msg);
+
 
     }
   }
@@ -225,12 +229,12 @@ public class EchoServer extends AbstractServer
         setPort(newPort);
         //error checking should be added
         serverUI.display
-          ("Server port changed to " + getPort());
+                ("Server port changed to " + getPort());
       }
       else
       {
         serverUI.display
-          ("The server is not closed. Port cannot be changed.");
+                ("The server is not closed. Port cannot be changed.");
       }
     }
     else if (message.equalsIgnoreCase("#start"))
@@ -249,7 +253,7 @@ public class EchoServer extends AbstractServer
       else
       {
         serverUI.display
-          ("The server is already listening for clients.");
+                ("The server is already listening for clients.");
       }
     }
     else if (message.equalsIgnoreCase("#getport"))
@@ -257,7 +261,7 @@ public class EchoServer extends AbstractServer
       serverUI.display("Currently port: " + Integer.toString(getPort()));
     }
   }
-    
+
   /**
    * This method overrides the one in the superclass.  Called
    * when the server starts listening for connections.
@@ -265,9 +269,9 @@ public class EchoServer extends AbstractServer
   protected void serverStarted()
   {
     System.out.println
-      ("Server listening for connections on port " + getPort());
+            ("Server listening for connections on port " + getPort());
   }
-  
+
   /**
    * This method overrides the one in the superclass.  Called
    * when the server stops listening for connections.
@@ -275,7 +279,7 @@ public class EchoServer extends AbstractServer
   protected void serverStopped()
   {
     System.out.println
-      ("Server has stopped listening for connections.");
+            ("Server has stopped listening for connections.");
   }
 
   /**
@@ -300,7 +304,7 @@ public class EchoServer extends AbstractServer
    * @param client the connection with the client
    */
   synchronized protected void clientDisconnected(
-    ConnectionToClient client)
+          ConnectionToClient client)
   {
     // display on server and clients when a user disconnects
     String msg = client.getInfo("loginID").toString() + " has disconnected";
@@ -350,7 +354,7 @@ public class EchoServer extends AbstractServer
    * @param //args[0] The port number to listen on.  Defaults to 5555
    *          if no argument is entered.
    */
-  public static void main(String[] args) 
+  public static void main(String[] args)
   {
     int port = 0; //Port to listen on
 
@@ -362,14 +366,14 @@ public class EchoServer extends AbstractServer
     {
       port = DEFAULT_PORT; //Set port to 5555
     }
-	
+
     EchoServer sv = new EchoServer(port);
-    
-    try 
+
+    try
     {
       sv.listen(); //Start listening for connections
-    } 
-    catch (Exception ex) 
+    }
+    catch (Exception ex)
     {
       System.out.println("ERROR - Could not listen for clients!");
     }

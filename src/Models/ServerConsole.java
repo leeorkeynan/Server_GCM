@@ -19,20 +19,20 @@ import java.io.*;
 public class ServerConsole implements ChatIF
 {
   //Class variables *************************************************
-  
+
   /**
    * The default port to connect on.
    */
   final public static int DEFAULT_PORT = 5555;
-  
+
   //Instance variables **********************************************
-  
+
   /**
    * The instance of the server that created this EchoServer.
    */
   EchoServer server;
 
-  
+
   //Constructors ****************************************************
 
   /**
@@ -40,19 +40,19 @@ public class ServerConsole implements ChatIF
    *
    * @param port The port to connect on.
    */
-  public ServerConsole(int port) 
+  public ServerConsole(int port)
   {
-    try 
+    try
     {
       server = new EchoServer(port, this);
-    } 
-    catch(IOException exception) 
+    }
+    catch(IOException exception)
     {
       System.out.println("Error: Can't setup connection!"
-                + " Terminating client.");
+              + " Terminating client.");
       System.exit(1);
     }
-    
+
     try
     {
       server.listen(); //Start listening for connections
@@ -63,31 +63,31 @@ public class ServerConsole implements ChatIF
     }
   }
 
-  
+
   //Instance methods ************************************************
-  
+
   /**
    * This method waits for input from the console.  Once it is 
    * received, it sends it to the client's message handler.
    */
-  public void accept() 
+  public void accept()
   {
     try
     {
-      BufferedReader fromConsole = 
-        new BufferedReader(new InputStreamReader(System.in));
+      BufferedReader fromConsole =
+              new BufferedReader(new InputStreamReader(System.in));
       String message;
 
-      while (true) 
+      while (true)
       {
         message = fromConsole.readLine();
         server.handleMessageFromServerUI(message);
       }
-    } 
-    catch (Exception ex) 
+    }
+    catch (Exception ex)
     {
       System.out.println
-        ("Unexpected error while reading from console!");
+              ("Unexpected error while reading from console!");
     }
   }
 
@@ -97,19 +97,19 @@ public class ServerConsole implements ChatIF
    *
    * @param message The string to be displayed.
    */
-  public void display(String message) 
+  public void display(String message)
   {
     System.out.println("> " + message);
   }
 
-  
+
   //Class methods ***************************************************
-  
+
   /**
    * This method is responsible for the creation of the Server UI.
    *
    */
-public static void main(String[] args)
+  public static void main(String[] args)
   {
     String host = "";
     int port = 0;  //The port number

@@ -14,6 +14,6 @@ public interface IDBHandler
     int GetNumOfPurchases(String p_userName);
     void IncreaseNumOfPurchases(String p_userName, int p_value);
     IClientDetails GetClientDetails(String p_userName);
-    boolean IsUsernameExists(String p_username);
+    boolean IsUsernameExists(String p_username, String p_password);
 
 }

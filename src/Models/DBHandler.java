@@ -53,21 +53,21 @@ public class DBHandler implements IDBHandler
 
     private void Close()
     {
-            try
+        try
+        {
+            if (m_statement != null)
             {
-                if (m_statement != null)
-                {
-                    m_statement.close();
-                }
-                if (m_connection != null)
-                {
-                    m_connection.close();
-                }
+                m_statement.close();
             }
-            catch (SQLException se)
+            if (m_connection != null)
             {
-                se.printStackTrace();
+                m_connection.close();
             }
+        }
+        catch (SQLException se)
+        {
+            se.printStackTrace();
+        }
     }
 
     @Override
@@ -172,16 +172,25 @@ public class DBHandler implements IDBHandler
     }
 
     @Override
-    public boolean IsUsernameExists(String p_username)
+    public boolean IsUsernameExists(String p_username, String p_password)
     {
         try
         {
-            PreparedStatement statement = m_connection.prepareStatement("SELECT username FROM clients WHERE username = '"+ p_username +"'");
+            PreparedStatement statement = m_connection.prepareStatement("SELECT password FROM clients WHERE username = '"+ p_username +"'");
             ResultSet results = statement.executeQuery();
             if (results.next())
             {
-                statement.close();
-                return true;
+                if(p_password.equals(results.getString("password")))
+                {
+                    statement.close();
+                    return true;
+                }
+                else
+                {
+                    statement.close();
+                    return false;
+                }
+
             }
             else
             {
