@@ -6,6 +6,8 @@ import Models.Interfaces.IDBHandler;
 import Models.Interfaces.IMessage;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.concurrent.RecursiveTask;
 
 import javax.net.ssl.SSLException;
 
@@ -85,51 +87,23 @@ public class DBHandler implements IDBHandler
     @Override
     public int GetNumOfPurchases(String p_userName)
     {
+        String query = "Select COUNT(*) count FROM purchases WHERE USERNAME = '"+ p_userName +"'";
+        ResultSet result = executeQuery(query);
         try {
-            String getNumOfPurchasesQuery = "SELECT numOfPurchase FROM clients WHERE username = '" + p_userName+"'";
-            PreparedStatement statement = m_connection.prepareStatement(getNumOfPurchasesQuery);
-            ResultSet results = statement.executeQuery();
-            if (results.next()) {
-                int numOfPurchase = results.getInt("numOfPurchase");
-                statement.close();
-                return numOfPurchase;
-            }
-            else
-            {
-                statement.close();
+            if (result == null) {
                 return 0;
             }
+            return result.getInt("count");
         }
-        catch (SQLException se) {
-            se.printStackTrace();
-            System.out.println("SQLException: " + se.getMessage());
-            System.out.println("SQLState: " + se.getSQLState());
-            System.out.println("VendorError: " + se.getErrorCode());
+        catch (Exception e)
+        {
+            return 0;
         }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
     }
 
     @Override
     public void IncreaseNumOfPurchases (String p_userName, int p_value)
     {
-        try
-        {
-            PreparedStatement statement = m_connection.prepareStatement("UPDATE clients SET numOfPurchase = numOfPurchase + "+ p_value + " WHERE username = '"+ p_userName +"'");
-            statement.executeUpdate();
-            statement.close();
-        }
-        catch (SQLException se) {
-            se.printStackTrace();
-            System.out.println("SQLException: " + se.getMessage());
-            System.out.println("SQLState: " + se.getSQLState());
-            System.out.println("VendorError: " + se.getErrorCode());
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
         return;
     }
 
@@ -143,13 +117,11 @@ public class DBHandler implements IDBHandler
             if (results.next()) {
                 int numOfPurchase = results.getInt("numOfPurchase");
                 ClientDetails details = new ClientDetails();
-                details.userId = results.getInt("userId");
-                details.FirstName = results.getString("firstName");
-                details.LastName = results.getString("lastName");
-                details.UserName = results.getString("username");
-                details.HasLicense = results.getBoolean("hasLicense");
-                details.TimestampLicenseExp = results.getInt("timestampLicenseExp");
-                details.NumOfPurchase = results.getInt("numOfPurchase");
+                details.UserName = results.getString("USERNAME");
+                details.FirstName = results.getString("FIRST_NAME");
+                details.LastName = results.getString("LAST_NAME");
+                details.Email = results.getString("EMAIL");
+                details.Email = results.getString("PHONE");
                 statement.close();
                 return details;
             }
@@ -171,12 +143,67 @@ public class DBHandler implements IDBHandler
         return null;
     }
 
+    public ArrayList<String> CheckUser(String p_userName, String p_password)
+    {
+        String query = "Select IS_CONNECTED 'connection', CLASSIFICATION 'type' FROM persons WHERE USERNAME = '" + p_userName + "' AND PASSWORD = '"+ p_password +"'";
+        ResultSet result = executeQuery(query);
+        try {
+            if(result == null)
+            {
+                return new ArrayList<String>(){
+                    {
+                        add("login");
+                        add("failure");
+                        add("Username or password was invalid.");
+                    }};
+            }
+            else if(result.getBoolean("connection"))
+            {
+                return new ArrayList<String>(){
+                    {
+                        add("login");
+                        add("failure");
+                        add("User is already logged in.");
+                    }};
+            }
+            else{
+                return new ArrayList<String>(){
+                    {
+                        add("login");
+                        add("success");
+                        add(Integer.toString(result.getInt("type")));
+                    }};
+            }
+        }
+        catch (SQLException se) {
+            se.printStackTrace();
+            System.out.println("SQLException: " + se.getMessage());
+            System.out.println("SQLState: " + se.getSQLState());
+            System.out.println("VendorError: " + se.getErrorCode());
+            return new ArrayList<String>() {
+                {
+                    add("login");
+                    add("failure");
+                    add("Connection problem.");
+                }};
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<String>(){
+                {
+                    add("login");
+                    add("failure");
+                    add("Connection problem.");
+                }};
+        }
+    }
+
     @Override
     public boolean IsUsernameExists(String p_username, String p_password)
     {
         try
         {
-            PreparedStatement statement = m_connection.prepareStatement("SELECT * FROM clients WHERE username = '"+ p_username +"'");
+            PreparedStatement statement = m_connection.prepareStatement("SELECT * FROM clients WHERE USERNAME = '"+ p_username +"'");
             ResultSet results = statement.executeQuery();
             if (results.next())
             {
@@ -210,9 +237,72 @@ public class DBHandler implements IDBHandler
         return false;
     }
 
+    public boolean LogInUser(String p_userName, String p_userPassword)
+    {
+        String query = "UPDATE persons SET IS_CONNECTED = 1 WHERE USERNAME = '"+ p_userName +"'";
+        return executeUpdate(query);
+    }
+
+    public boolean LogOutUser(String p_userName, String p_userPassword)
+    {
+        String query = "UPDATE persons SET IS_CONNECTED = 0 WHERE USERNAME = '"+ p_userName +"'";
+        return executeUpdate(query);
+    }
+
     //endregion
 
     //region Private Methods
+
+    private ResultSet executeQuery(String p_query)
+    {
+        try
+        {
+            PreparedStatement statement = m_connection.prepareStatement(p_query);
+            ResultSet results = statement.executeQuery();
+            statement.close();
+            if (results.next())
+            {
+                return results;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (SQLException se) {
+            se.printStackTrace();
+            System.out.println("SQLException: " + se.getMessage());
+            System.out.println("SQLState: " + se.getSQLState());
+            System.out.println("VendorError: " + se.getErrorCode());
+            return null;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private boolean executeUpdate(String p_query)
+    {
+        try
+        {
+            PreparedStatement statement = m_connection.prepareStatement(p_query);
+            statement.executeUpdate();
+            statement.close();
+            return true;
+        }
+        catch (SQLException se) {
+            se.printStackTrace();
+            System.out.println("SQLException: " + se.getMessage());
+            System.out.println("SQLState: " + se.getSQLState());
+            System.out.println("VendorError: " + se.getErrorCode());
+            return false;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     public void Test()
     {
