@@ -5,6 +5,7 @@ import Models.Interfaces.IDBData;
 import Models.Interfaces.IDBHandler;
 import Models.Interfaces.IMessage;
 
+import java.io.Serializable;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.concurrent.RecursiveTask;
@@ -145,7 +146,7 @@ public class DBHandler implements IDBHandler
 
     public ArrayList<String> CheckUser(String p_userName, String p_password)
     {
-        String query = "Select IS_CONNECTED 'connection', CLASSIFICATION 'type' FROM persons WHERE USERNAME = '" + p_userName + "' AND PASSWORD = '"+ p_password +"'";
+        String query = "Select IS_CONNECTED, CLASSIFICATION FROM persons WHERE USERNAME = '" + p_userName + "' AND PASSWORD = '"+ p_password +"'";
         ResultSet result = executeQuery(query);
         try {
             if(result == null)
@@ -157,7 +158,7 @@ public class DBHandler implements IDBHandler
                         add("Username or password was invalid.");
                     }};
             }
-            else if(result.getBoolean("connection"))
+            else if(result.getBoolean("IS_CONNECTED"))
             {
                 return new ArrayList<String>(){
                     {
@@ -171,7 +172,7 @@ public class DBHandler implements IDBHandler
                     {
                         add("login");
                         add("success");
-                        add(Integer.toString(result.getInt("type")));
+                        add(Integer.toString(result.getInt("CLASSIFICATION")));
                     }};
             }
         }
@@ -257,15 +258,16 @@ public class DBHandler implements IDBHandler
     {
         try
         {
+            ResultSet output = null;
             PreparedStatement statement = m_connection.prepareStatement(p_query);
             ResultSet results = statement.executeQuery();
-            statement.close();
             if (results.next())
             {
                 return results;
             }
             else
             {
+                statement.close();
                 return null;
             }
         }

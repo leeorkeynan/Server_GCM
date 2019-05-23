@@ -90,8 +90,9 @@ public class EchoServer extends AbstractServer
     if (MessageArray.get(0).equals("login")) {
       String username = MessageArray.get(1).toString();
       String password = MessageArray.get(2).toString();
-      return DB.CheckUser(username,password);
-
+      ArrayList<String> ans = DB.CheckUser(username,password);
+      ArrayList<String> ans2 = new ArrayList<>(ans);
+      client.sendToClient(ans2);
     }
   }
 
