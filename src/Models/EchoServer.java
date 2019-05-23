@@ -11,6 +11,7 @@ import Models.OCSF.server.ConnectionToClient;
 import Models.common.ChatIF;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 /**
@@ -76,9 +77,24 @@ public class EchoServer extends AbstractServer
    * @param msg The message received from the client.
    * @param client The connection from which the message originated.
    */
+
+
   public void handleMessageFromClient
-  (Object msg, ConnectionToClient client)
-  {
+  (Object msg, ConnectionToClient client) throws IOException {
+
+    // args: login, username, password
+    // response: login, success/failure , reason (1- permission? *** 0-client not exist, bad password, already connectd)
+
+  if (msg instanceof ArrayList) {
+    ArrayList MessageArray = (ArrayList) msg;
+    if (MessageArray.get(0).equals("login")) {
+      String username = MessageArray.get(1).toString();
+      String password = MessageArray.get(2).toString();
+      return DB.CheckUser(username,password);
+
+    }
+  }
+
     if (msg.toString().startsWith("#login "))
     {
       if (client.getInfo("loginID") != null)
@@ -89,6 +105,7 @@ public class EchoServer extends AbstractServer
         }
         catch (IOException e)
         {
+
         }
         return;
       }
@@ -176,8 +193,7 @@ public class EchoServer extends AbstractServer
    *
    * @param message The message from the UI
    */
-  public void handleMessageFromServerUI(String message)
-  {
+  public void handleMessageFromServerUI(String message) throws IOException {
     if (message.charAt(0) == '#')
     {
       runCommand(message);
@@ -294,14 +310,7 @@ public class EchoServer extends AbstractServer
     String msg = "A Client has connected";
     System.out.println(msg);
     m_client = client;
-//    try
-//    {
-//      client.sendToClient("CONNECTED");
-//    }
-//    catch(Exception e)
-//    {}
-//    return;
-    //this.sendToAllClients(msg);
+
   }
 
   /**
