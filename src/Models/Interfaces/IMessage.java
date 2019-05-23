@@ -4,8 +4,8 @@ public interface IMessage
 {
     //region Properties
 
-    String Content = null;
-    int MessageID = 0;
+    String[] Content = null;
+    long MessageID = 0;
 
     //endregion
 

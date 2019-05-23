@@ -176,7 +176,7 @@ public class DBHandler implements IDBHandler
     {
         try
         {
-            PreparedStatement statement = m_connection.prepareStatement("SELECT password FROM clients WHERE username = '"+ p_username +"'");
+            PreparedStatement statement = m_connection.prepareStatement("SELECT * FROM clients WHERE username = '"+ p_username +"'");
             ResultSet results = statement.executeQuery();
             if (results.next())
             {
@@ -210,11 +210,14 @@ public class DBHandler implements IDBHandler
         return false;
     }
 
-
     //endregion
 
     //region Private Methods
 
+    public void Test()
+    {
+        //LEEOR 23/5/19 12:00
+    }
 
     //endregion
 

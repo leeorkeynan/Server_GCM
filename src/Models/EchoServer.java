@@ -165,7 +165,7 @@ public class EchoServer extends AbstractServer
 
       System.out.println("Message received: " + msg + " from \"" +
               client.getInfo("loginID") + "\" " + client);
-      this.sendToAllClients(client.getInfo("loginID") + "> " + msg);
+      //this.sendToAllClients(client.getInfo("loginID") + "> " + msg);
 
 
     }
@@ -294,13 +294,13 @@ public class EchoServer extends AbstractServer
     String msg = "A Client has connected";
     System.out.println(msg);
     m_client = client;
-    try
-    {
-      client.sendToClient("CONNECTED");
-    }
-    catch(Exception e)
-    {    }
-    return;
+//    try
+//    {
+//      client.sendToClient("CONNECTED");
+//    }
+//    catch(Exception e)
+//    {}
+//    return;
     //this.sendToAllClients(msg);
   }
 
@@ -317,7 +317,7 @@ public class EchoServer extends AbstractServer
     String msg = client.getInfo("loginID").toString() + " has disconnected";
 
     System.out.println(msg);
-    this.sendToAllClients(msg);
+    //this.sendToAllClients(msg);
   }
 
   /**
@@ -333,7 +333,7 @@ public class EchoServer extends AbstractServer
     String msg = client.getInfo("loginID").toString() + " has disconnected";
 
     System.out.println(msg);
-    this.sendToAllClients(msg);
+    //this.sendToAllClients(msg);
   }
 
   /**
